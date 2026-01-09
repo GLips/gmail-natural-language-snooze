@@ -43,7 +43,8 @@ export function injectSnoozeInput(menu: HTMLElement) {
   errorMsg.textContent = "Could not understand date/time";
 
   // Focus styles
-  input.addEventListener("focus", () => {
+  input.addEventListener("focus", (e) => {
+    e.stopPropagation();
     input.style.border = "1px solid #1a73e8";
   });
   input.addEventListener("blur", () => {
@@ -56,6 +57,11 @@ export function injectSnoozeInput(menu: HTMLElement) {
   });
 
   input.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      input.blur();
+      return; // Allow propagation so Gmail can close the menu
+    }
+
     // Always stop propagation for keys we handle or want to block Gmail from stealing
     e.stopPropagation();
 
@@ -90,14 +96,6 @@ export function injectSnoozeInput(menu: HTMLElement) {
         errorMsg.style.display = "block";
         input.style.border = "1px solid #d93025";
       }
-    } else if (e.key === "Escape") {
-      // Optional: close menu or just blur?
-      // For now, let's just blur to let Gmail handle Esc if it bubbles (but we stopped propagation).
-      // If we want Gmail to close the menu, we might need to NOT stop propagation for Esc,
-      // or explicitly trigger a close action.
-      // PRD says "Esc -> close NL field (optional)".
-      // Let's try removing focus.
-      input.blur();
     }
   });
 

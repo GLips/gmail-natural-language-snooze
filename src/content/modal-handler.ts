@@ -87,7 +87,7 @@ function waitForModal(timeout = 3000): Promise<HTMLElement | null> {
  * Attempts to match the target date format to the original value's format.
  * Defaults to "MMM d, yyyy" (e.g. Jan 10, 2026) if unrecognized.
  */
-function formatDateForGmail(date: Date, originalValue: string): string {
+export function formatDateForGmail(date: Date, originalValue: string): string {
   // Common Gmail formats
   // "Jan 10, 2026" -> MMM d, yyyy
   // "10/01/2026" -> dd/MM/yyyy or MM/dd/yyyy
@@ -112,8 +112,27 @@ function formatDateForGmail(date: Date, originalValue: string): string {
     // For now, let's default to a safe "MMM d, yyyy" if possible, as it's less ambiguous.
     // BUT, the input might enforce a specific format and reject others.
 
-    // If original is MM/dd/yyyy
+    // If original is MM/dd/yyyy or dd/MM/yyyy
+    // We can try to guess based on standard locale formats, but "MM/dd/yyyy" is very common in Gmail US.
+    // Let's stick with MM/dd/yyyy for slash inputs for now as per previous logic,
+    // BUT we should actually check if the user is using dd/MM/yyyy (e.g. UK).
+    // It's hard to distinguish 01/01/2025.
+
+    // If the regex matches a clear dd/MM pattern (unlikely to detect without values > 12)
+    // Let's just output MM/dd/yyyy for now to be safe with the test expectation,
+    // or maybe we should change the logic to be more generic.
+    // The previous implementation was: return format(date, "MM/dd/yyyy");
     return format(date, "MM/dd/yyyy");
+  }
+
+  // Check for dots (e.g. 10.01.2026 or 10.1.2026)
+  if (originalValue.includes(".")) {
+    return format(date, "dd.MM.yyyy");
+  }
+
+  // Check for dashes (e.g. 2026-01-10)
+  if (originalValue.includes("-")) {
+    return format(date, "yyyy-MM-dd");
   }
 
   // Fallback
@@ -123,7 +142,7 @@ function formatDateForGmail(date: Date, originalValue: string): string {
 /**
  * Formats time respecting 12h/24h preference inferred from original value.
  */
-function formatTimeForGmail(date: Date, originalValue: string): string {
+export function formatTimeForGmail(date: Date, originalValue: string): string {
   // Check for AM/PM
   const is12Hour = /AM|PM/i.test(originalValue);
 
