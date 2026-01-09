@@ -7,17 +7,28 @@ const ERROR_CLASS = "gmail-snooze-nl-error";
 
 export function injectSnoozeInput(menu: HTMLElement) {
   // Prevent duplicate injection
-  if (menu.querySelector(`.${INPUT_CLASS}`)) {
+  if (document.querySelector(`.${INPUT_CLASS}`)) {
     return;
   }
 
   const container = document.createElement("div");
   container.className = "gmail-snooze-nl-container";
   container.style.padding = "8px 16px";
-  container.style.borderBottom = "1px solid rgba(0,0,0,0.1)";
+  container.style.border = "1px solid rgba(0,0,0,0.1)";
+  container.style.borderRadius = "4px";
+  container.style.backgroundColor = "white";
+  container.style.boxShadow = "0 2px 8px rgba(0,0,0,0.1)";
   container.style.display = "flex";
   container.style.flexDirection = "column";
   container.style.gap = "4px";
+  container.style.zIndex = "1000";
+  container.style.position = "fixed";
+
+  // Position near the menu
+  const rect = menu.getBoundingClientRect();
+  container.style.top = `${rect.top - 60}px`; // Above the menu
+  container.style.left = `${rect.left}px`;
+  container.style.width = `${rect.width}px`;
 
   const input = document.createElement("input");
   input.type = "text";
@@ -58,8 +69,8 @@ export function injectSnoozeInput(menu: HTMLElement) {
 
   input.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
-      input.blur();
-      return; // Allow propagation so Gmail can close the menu
+      removeInput();
+      return;
     }
 
     // Always stop propagation for keys we handle or want to block Gmail from stealing
@@ -102,9 +113,26 @@ export function injectSnoozeInput(menu: HTMLElement) {
   container.appendChild(input);
   container.appendChild(errorMsg);
 
-  // Insert at the top of the menu
-  menu.insertBefore(container, menu.firstChild);
+  // Append to body to avoid interfering with menu
+  document.body.appendChild(container);
 
   // Auto-focus the input
   setTimeout(() => input.focus(), 50);
+
+  // Function to remove the input when menu is gone or action taken
+  const removeInput = () => {
+    if (container.parentNode) {
+      container.parentNode.removeChild(container);
+    }
+  };
+
+  // Check if menu still exists periodically
+  const checkMenu = () => {
+    if (!document.contains(menu)) {
+      removeInput();
+      return;
+    }
+    setTimeout(checkMenu, 500);
+  };
+  setTimeout(checkMenu, 500);
 }
