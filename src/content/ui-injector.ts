@@ -1,4 +1,8 @@
+import { parseSnoozeDate } from "./date-parser";
+import { triggerPickDateMenu } from "./snooze-actions";
+
 const INPUT_CLASS = "gmail-snooze-nl-input";
+const ERROR_CLASS = "gmail-snooze-nl-error";
 
 export function injectSnoozeInput(menu: HTMLElement) {
   // Prevent duplicate injection
@@ -10,6 +14,9 @@ export function injectSnoozeInput(menu: HTMLElement) {
   container.className = "gmail-snooze-nl-container";
   container.style.padding = "8px 16px";
   container.style.borderBottom = "1px solid rgba(0,0,0,0.1)";
+  container.style.display = "flex";
+  container.style.flexDirection = "column";
+  container.style.gap = "4px";
 
   const input = document.createElement("input");
   input.type = "text";
@@ -24,17 +31,72 @@ export function injectSnoozeInput(menu: HTMLElement) {
   input.style.fontSize = "14px";
   input.style.fontFamily = "Roboto, RobotoDraft, Helvetica, Arial, sans-serif";
   input.style.boxSizing = "border-box";
+  input.style.outline = "none";
 
-  // Prevent click propagation so it doesn't close the menu immediately
+  // Error message element
+  const errorMsg = document.createElement("div");
+  errorMsg.className = ERROR_CLASS;
+  errorMsg.style.color = "#d93025";
+  errorMsg.style.fontSize = "12px";
+  errorMsg.style.display = "none";
+  errorMsg.textContent = "Could not understand date/time";
+
+  // Focus styles
+  input.addEventListener("focus", () => {
+    input.style.border = "1px solid #1a73e8";
+  });
+  input.addEventListener("blur", () => {
+    input.style.border = "1px solid #dadce0";
+  });
+
+  // Prevent click propagation
   input.addEventListener("click", (e) => {
     e.stopPropagation();
   });
 
   input.addEventListener("keydown", (e) => {
-    e.stopPropagation(); // specific key handling later
+    // Always stop propagation for keys we handle or want to block Gmail from stealing
+    e.stopPropagation();
+
+    // Reset error on typing
+    errorMsg.style.display = "none";
+    input.style.border = "1px solid #1a73e8";
+
+    if (e.key === "Enter") {
+      const value = input.value.trim();
+      if (!value) return;
+
+      const result = parseSnoozeDate(value);
+
+      if (result) {
+        console.log("Parsed date:", result.date);
+        // Trigger the menu item
+        const triggered = triggerPickDateMenu(menu);
+        if (!triggered) {
+          console.error("Could not find 'Pick date & time' option");
+          errorMsg.textContent = "Error: Option not found";
+          errorMsg.style.display = "block";
+        }
+        // NOTE: In the next step, we will also need to store the parsed date
+        // somewhere so the modal handler can pick it up.
+      } else {
+        errorMsg.textContent = "Could not understand date/time";
+        errorMsg.style.display = "block";
+        input.style.border = "1px solid #d93025";
+      }
+    } else if (e.key === "Escape") {
+      // Optional: close menu or just blur?
+      // For now, let's just blur to let Gmail handle Esc if it bubbles (but we stopped propagation).
+      // If we want Gmail to close the menu, we might need to NOT stop propagation for Esc,
+      // or explicitly trigger a close action.
+      // PRD says "Esc -> close NL field (optional)".
+      // Let's try removing focus.
+      input.blur();
+    }
   });
 
   container.appendChild(input);
+  container.appendChild(errorMsg);
 
   // Insert at the top of the menu
   menu.insertBefore(container, menu.firstChild);
