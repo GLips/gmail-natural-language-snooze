@@ -5,6 +5,7 @@
     "": {
       "name": "gmail-chrome-extension",
       "dependencies": {
+        "@biomejs/cli-darwin-arm64": "^2.3.11",
         "chrono-node": "^2.9.0",
         "date-fns": "^4.1.0",
       },

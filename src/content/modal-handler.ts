@@ -10,10 +10,12 @@ const SAVE_BUTTON_SELECTOR = 'button[data-mdc-dialog-action="ok"]'; // also chec
  */
 export async function handleModalInteraction(targetDate: Date): Promise<void> {
   try {
+    console.log("Gmail Snooze: waiting for modal...");
     const modal = await waitForModal();
     if (!modal) {
       throw new Error("Modal did not appear");
     }
+    console.log("Gmail Snooze: modal found");
 
     // Give it a tick to ensure inputs are ready/populated
     await new Promise((resolve) => setTimeout(resolve, 100));
@@ -25,6 +27,10 @@ export async function handleModalInteraction(targetDate: Date): Promise<void> {
       TIME_INPUT_SELECTOR,
     ) as HTMLInputElement;
 
+    console.log(
+      `Gmail Snooze: dateInput=${!!dateInput}, timeInput=${!!timeInput}`,
+    );
+
     if (!dateInput || !timeInput) {
       throw new Error("Could not find date/time inputs in modal");
     }
@@ -32,11 +38,17 @@ export async function handleModalInteraction(targetDate: Date): Promise<void> {
     // 1. Fill Date
     const originalDateValue = dateInput.value;
     const formattedDate = formatDateForGmail(targetDate, originalDateValue);
+    console.log(
+      `Gmail Snooze: setting date from "${originalDateValue}" to "${formattedDate}"`,
+    );
     await setInputValue(dateInput, formattedDate);
 
     // 2. Fill Time
     const originalTimeValue = timeInput.value;
     const formattedTime = formatTimeForGmail(targetDate, originalTimeValue);
+    console.log(
+      `Gmail Snooze: setting time from "${originalTimeValue}" to "${formattedTime}"`,
+    );
     await setInputValue(timeInput, formattedTime);
 
     // 3. Click Save
@@ -45,6 +57,7 @@ export async function handleModalInteraction(targetDate: Date): Promise<void> {
       throw new Error("Could not find Save button");
     }
 
+    console.log("Gmail Snooze: clicking Save button");
     // Small delay for visual feedback/ensure validation passed
     await new Promise((resolve) => setTimeout(resolve, 100));
     saveBtn.click();
