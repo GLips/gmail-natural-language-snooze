@@ -23,17 +23,36 @@ A Chrome extension that enhances Gmail's snooze feature with a keyboard-first, n
 
 ## Installation
 
-### Prerequisites
+### Option 1: Install Pre-built Extension (Recommended)
 
+The easiest way to install is to download the pre-built extension from GitHub Releases:
+
+1. **Download the extension**
+   - Go to the [latest release](https://github.com/GLips/gmail-natural-language-snooze/releases/latest)
+   - Download `gmail-snooze-extension-v1.0.0.zip`
+   - Unzip the file to a folder on your computer
+
+2. **Load in Chrome**
+   - Open Chrome and navigate to `chrome://extensions/`
+   - Enable "Developer mode" using the toggle in the top-right corner
+   - Click "Load unpacked"
+   - Select the unzipped folder
+   - The extension is now installed!
+
+### Option 2: Build from Source
+
+If you want to build the extension yourself:
+
+**Prerequisites:**
 - [Bun](https://bun.sh/) - Fast JavaScript runtime and toolkit
 - Google Chrome or any Chromium-based browser
 
-### Build the Extension
+**Build steps:**
 
 1. Clone or download this repository:
    ```bash
-   git clone <repository-url>
-   cd gmail-chrome-extension
+   git clone https://github.com/GLips/gmail-natural-language-snooze.git
+   cd gmail-natural-language-snooze
    ```
 
 2. Install dependencies:
@@ -48,17 +67,12 @@ A Chrome extension that enhances Gmail's snooze feature with a keyboard-first, n
 
    This creates a `dist/` directory with the bundled extension files.
 
-### Load in Chrome
-
-1. Open Chrome and navigate to `chrome://extensions/`
-
-2. Enable "Developer mode" using the toggle in the top-right corner
-
-3. Click "Load unpacked"
-
-4. Select the `dist/` directory from this project
-
-5. The extension is now installed! You should see "Gmail Snooze Natural-Language Input" in your extensions list.
+4. Load in Chrome:
+   - Open Chrome and navigate to `chrome://extensions/`
+   - Enable "Developer mode" using the toggle in the top-right corner
+   - Click "Load unpacked"
+   - Select the `dist/` directory from this project
+   - The extension is now installed!
 
 ### Verify Installation
 
@@ -165,6 +179,25 @@ The extension works by:
 ## Contributing
 
 Feel free to fork, modify, and improve this extension. The codebase is well-structured and TypeScript makes it easy to understand and extend.
+
+### Creating a Release
+
+To create a new release with a pre-built extension zip:
+
+```bash
+./release.sh <version>
+```
+
+Example:
+```bash
+./release.sh 1.1.0
+```
+
+This will:
+1. Build the extension
+2. Create a zip archive
+3. Create a GitHub release with the zip file attached
+4. Generate release notes automatically
 
 ## License
 
