@@ -1,4 +1,5 @@
 import { parseSnoozeDate } from "./date-parser";
+import { handleModalInteraction } from "./modal-handler";
 import { triggerPickDateMenu } from "./snooze-actions";
 
 const INPUT_CLASS = "gmail-snooze-nl-input";
@@ -76,9 +77,14 @@ export function injectSnoozeInput(menu: HTMLElement) {
           console.error("Could not find 'Pick date & time' option");
           errorMsg.textContent = "Error: Option not found";
           errorMsg.style.display = "block";
+        } else {
+          // Hand off to the modal handler
+          handleModalInteraction(result.date).catch((err) => {
+            console.error("Modal interaction failed:", err);
+            // Note: Menu and input are likely destroyed by Gmail at this point,
+            // so we can't show feedback in the UI easily.
+          });
         }
-        // NOTE: In the next step, we will also need to store the parsed date
-        // somewhere so the modal handler can pick it up.
       } else {
         errorMsg.textContent = "Could not understand date/time";
         errorMsg.style.display = "block";

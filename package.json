@@ -16,6 +16,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "chrono-node": "^2.9.0"
+    "chrono-node": "^2.9.0",
+    "date-fns": "^4.1.0"
   }
 }
