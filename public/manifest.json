@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Gmail Snooze Natural-Language Input",
+  "version": "1.0.0",
+  "description": "Adds a natural-language input to Gmail's snooze menu.",
+  "permissions": ["activeTab"],
+  "content_scripts": [
+    {
+      "matches": ["https://mail.google.com/*"],
+      "js": ["content-script.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

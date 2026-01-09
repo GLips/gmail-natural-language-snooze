@@ -1,2 +1,6 @@
 plan.md
 progress.txt
+node_modules
+dist
+.DS_Store
+.env
